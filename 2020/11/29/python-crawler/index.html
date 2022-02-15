@@ -1,0 +1,510 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/assets/favicon.ico?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/assets/favicon.ico?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="非常简单的一个 Python 爬虫程序爬取b站up主的粉丝数和up主的id 仅用于学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次使用 Python 爬取B站up主信息经历">
+<meta property="og:url" content="https://vikiboss.top/2020/11/29/python-crawler/index.html">
+<meta property="og:site_name" content="Viki&#39;s Blog">
+<meta property="og:description" content="非常简单的一个 Python 爬虫程序爬取b站up主的粉丝数和up主的id 仅用于学习">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-11-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-07-22T05:03:45.921Z">
+<meta property="article:author" content="Viki">
+<meta property="article:tag" content="Blog">
+<meta property="article:tag" content="Viki">
+<meta property="article:tag" content="vikiboss">
+<meta name="twitter:card" content="summary"><title>记一次使用 Python 爬取B站up主信息经历 | Viki's Blog</title><link ref="canonical" href="https://vikiboss.top/2020/11/29/python-crawler/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" type="text/css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-1861620172391138" async="" data-pjax=""></script><script src="https://www.googletagmanager.com/gtag/js?id=UA-177056870-1" async="" data-pjax=""></script><script data-pjax="">if (window.location.hostname !== 'localhost') {
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'UA-177056870-1');
+}</script><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":true},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"carbon","highlight":"light","wordWrap":false},
+  reward: true,
+  fancybox: true,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: {"colWidth":"220px","gapX":"10px"},
+  lazyload: true,
+  pjax: {"avoidBanner":false},
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/about"><span class="header-nav-menu-item__text">关于</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner" style="background: url(https://i.loli.net/2020/11/29/esjylJK4a256W3L.png) no-repeat center/cover;"><div class="header-banner-info"><div class="header-banner-info__title">Viki's Blog</div><div class="header-banner-info__subtitle">努力上进且优秀</div></div><div class="header-banner-arrow"><div class="header-banner-arrow__icon"><i class="fas fa-angle-down"></i></div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">记一次使用 Python 爬取B站up主信息经历</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon" data-popover="发表时间" data-popover-pos="up"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__value">2020-11-29</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon" data-popover="修改时间" data-popover-pos="up"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__value">2021-07-22</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon" data-popover="字数统计" data-popover-pos="up"><i class="far fa-file-word"></i></span><span class="post-meta-item__value">1.9k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon" data-popover="阅读时间" data-popover-pos="up"><i class="far fa-clock"></i></span><span class="post-meta-item__value">17分</span></span></div></header><div class="post-body">
+        <h2 id="需求"   >
+          <a href="#需求" class="heading-link"><i class="fas fa-link"></i></a><a href="#需求" class="headerlink" title="需求"></a>需求</h2>
+      <p>尽可能获取 B 站美食博主列表 按照粉丝数排序 最终目的是能找出粉丝数前列 up 主的 id 名</p>
+
+        <h2 id="思路"   >
+          <a href="#思路" class="heading-link"><i class="fas fa-link"></i></a><a href="#思路" class="headerlink" title="思路"></a>思路</h2>
+      <ul>
+<li>将几个包含很多美食区视频的网页的 url 存起来</li>
+<li>通过请求 url 拿到尽可能多的投稿视频的链接</li>
+<li>通过视频链接拿到 up 主的主页链接 并分析出 up 主的 uid</li>
+<li>通过 uid 请求信息接口 拿到 up 主的 id 以及粉丝数</li>
+</ul>
+
+        <h2 id="用到的库及其作用"   >
+          <a href="#用到的库及其作用" class="heading-link"><i class="fas fa-link"></i></a><a href="#用到的库及其作用" class="headerlink" title="用到的库及其作用"></a>用到的库及其作用</h2>
+      <p><code>csv</code> : 读写 csv 文件<br><code>josn</code> : 读写 josn 文件<br><code>time</code> : 进行延时操作<br><code>random</code> : 随机数功能实现<br><code>codecs</code> : 打开文件 (解决中文写入文件后乱码问题)<br><code>requests</code> : 请求库<br><code>selenium</code> : 模拟浏览器<br><code>UserAgent</code> : 随机 UA 库<br><code>threading</code> : 多线程库<br><code>BeautifulSoup</code> : 解析 HTML 与 XML 的库</p>
+
+        <h2 id="遇到的问题以及解决方案"   >
+          <a href="#遇到的问题以及解决方案" class="heading-link"><i class="fas fa-link"></i></a><a href="#遇到的问题以及解决方案" class="headerlink" title="遇到的问题以及解决方案"></a>遇到的问题以及解决方案</h2>
+      
+        <h3 id="拿不到-html-结构"   >
+          <a href="#拿不到-html-结构" class="heading-link"><i class="fas fa-link"></i></a><a href="#拿不到-html-结构" class="headerlink" title="拿不到 html 结构"></a>拿不到 html 结构</h3>
+      <p>可能是因为<strong>没有设置 UA</strong> 服务器无法确认请求是否由用户发出</p>
+<p>提前设置好请求头 UA(浏览器标识), <strong>伪装成浏览器, 模拟用户正常请求</strong>, 防止 ip 被 ban <del>如果已经被 ban 那就算啦</del></p>
+<p>这里可以自己设置 UA 为指定浏览器标识 也可以用库来随机生成</p>
+<p>这里<strong>建议使用 <code>fake_useragent</code> 库来随机生成 UA 标识</strong></p>
+<p>安装 <code>fake_useragent</code>:</p>
+<figure class="highlight bash"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip insatll fake_useragent</span><br></pre></td></tr></table></div></figure>
+
+<p>使用:</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> fake_useragent <span class="keyword">import</span> UserAgent</span><br><span class="line">UA = UserAgent().random</span><br><span class="line">headers = &#123;<span class="string">&#x27;User-Agent&#x27;</span>: UA&#125;</span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="拿到的-html-结构不完整"   >
+          <a href="#拿到的-html-结构不完整" class="heading-link"><i class="fas fa-link"></i></a><a href="#拿到的-html-结构不完整" class="headerlink" title="拿到的 html 结构不完整"></a>拿到的 html 结构不完整</h3>
+      <p>可能是因为<strong>网页动态加载</strong>的(拿到网页并用浏览器解析之后还需要 js 来动态更新网页内容), 导致拿到的网页的 html 结构残缺, 拿不到想要的数据</p>
+<p>可以<strong>使用 <code>Selenium</code> 库来模拟浏览器爬虫</strong> 这样他会<strong>等到网页加载完全</strong>再拿出网页的 html</p>
+<p>安装 <code>Selenium</code>:</p>
+<figure class="highlight bash"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install selenium</span><br></pre></td></tr></table></div></figure>
+
+<p>下载你使用的对应版本的浏览器驱动:</p>
+<ul>
+<li>Firefox: <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/mozilla/geckodriver/releases" >geckodriver</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+<li>Chrome: <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://npm.taobao.org/mirrors/chromedriver" >chromedriver</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+<li>IE: <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://selenium-release.storage.googleapis.com/index.html" >IEDriverServer</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+<li>Edge: <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver" >MicrosoftWebDriver</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+<li>Opera: <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/operasoftware/operachromiumdriver/releases" >operadriver</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+<li>PhantomJS: <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://phantomjs.org/" >phantomjs</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+</ul>
+<p>使用:</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># driver = webdriver.Firefox()   # Firefox浏览器</span></span><br><span class="line"><span class="comment"># driver = webdriver.Chrome()    # Chrome浏览器</span></span><br><span class="line"><span class="comment"># driver = webdriver.Ie()        # Internet Explorer浏览器</span></span><br><span class="line"><span class="comment"># driver = webdriver.Edge()      # Edge浏览器</span></span><br><span class="line"><span class="comment"># driver = webdriver.Opera()     # Opera浏览器</span></span><br><span class="line"><span class="comment"># driver = webdriver.PhantomJS() # PhantomJS</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里使用对应的浏览器标识创建实例</span></span><br><span class="line">browser = webdriver.Chrome()</span><br><span class="line">browser.get(web)</span><br><span class="line"><span class="comment"># html 即为拿到的网页html结构字符串</span></span><br><span class="line">html = browser.page_source</span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="无法永久保存且不会乱码的数据"   >
+          <a href="#无法永久保存且不会乱码的数据" class="heading-link"><i class="fas fa-link"></i></a><a href="#无法永久保存且不会乱码的数据" class="headerlink" title="无法永久保存且不会乱码的数据"></a>无法永久保存且不会乱码的数据</h3>
+      <p>我太菜了 不会使数据库 所以只能存本地了 为了数据后续处理的方便 这里<strong>使用了 <code>csv</code> 文件格式存数据</strong></p>
+<p>同时使用了 <code>codecs</code> 打开文件来防止乱码</p>
+<p><code>csv</code> 格式文件很简单 Excel 也能打开并处理</p>
+<p>Python 里有 <code>csv</code> 库来读写 <code>csv</code> 格式文件</p>
+<p>安装 <code>csv</code> 及 <code>codecs</code> 库:</p>
+<figure class="highlight bash"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install csv codecs</span><br></pre></td></tr></table></div></figure>
+
+<p>使用:</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">filename = <span class="string">&quot;data.csv&quot;</span></span><br><span class="line"><span class="comment"># ab 为追加 wb 为覆盖  更详细的内容自行搜索</span></span><br><span class="line">csv_file = codecs.<span class="built_in">open</span>(filename, <span class="string">&#x27;ab&#x27;</span>, <span class="string">&quot;gbk&quot;</span>)</span><br><span class="line"><span class="comment"># 打开实例</span></span><br><span class="line">csv_writer = csv.writer(csv_file)</span><br><span class="line"><span class="comment"># 写入表头</span></span><br><span class="line">csv_writer.writerow((<span class="string">&quot;第一项&quot;</span>,<span class="string">&quot;第二项&quot;</span>))</span><br><span class="line">info = (<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line">infos = [(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>)]</span><br><span class="line"><span class="comment"># 写入一行数据</span></span><br><span class="line">csv_writer.writerow(info)</span><br><span class="line"><span class="comment"># 写入多行数据</span></span><br><span class="line">csv_writer.writerow(infos)</span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="返回的数据是-json-格式"   >
+          <a href="#返回的数据是-json-格式" class="heading-link"><i class="fas fa-link"></i></a><a href="#返回的数据是-json-格式" class="headerlink" title="返回的数据是 json 格式"></a>返回的数据是 json 格式</h3>
+      <p>使用 <code>json</code> 库处理</p>
+<p>安装 <code>json</code> 库:</p>
+<figure class="highlight bash"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install json</span><br></pre></td></tr></table></div></figure>
+
+<p>使用:</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line">jsonData  = <span class="string">&#x27;&#123;&quot;name&quot;: &quot;Viki&quot;&#125;&#x27;</span></span><br><span class="line"><span class="comment"># json字符串转为Python的字典(或者其他数据)</span></span><br><span class="line">data = json.load(jsonData)</span><br><span class="line"><span class="built_in">print</span>(data[<span class="string">&#x27;name&#x27;</span>]) <span class="comment"># Viki</span></span><br><span class="line"><span class="comment"># Python的字典(或者其他数据)转为json字符串</span></span><br><span class="line">jsonStr = json.dumps(data)</span><br><span class="line"><span class="built_in">print</span>(jsonStr) <span class="string">&#x27;&#123;&quot;name&quot;: &quot;Viki&quot;&#125;&#x27;</span></span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="爬取速度太慢"   >
+          <a href="#爬取速度太慢" class="heading-link"><i class="fas fa-link"></i></a><a href="#爬取速度太慢" class="headerlink" title="爬取速度太慢"></a>爬取速度太慢</h3>
+      <p>使用 <code>threading</code> 库实现<strong>多线程</strong></p>
+<p>安装 <code>threading</code>:</p>
+<figure class="highlight bash"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install threading</span><br></pre></td></tr></table></div></figure>
+
+<p>使用:</p>
+<figure class="highlight python"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">lst = [<span class="number">123</span>, <span class="number">456</span>, <span class="number">789</span>]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">double</span>(<span class="params">n</span>):</span></span><br><span class="line">    <span class="keyword">return</span> n*n</span><br><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> lst:</span><br><span class="line">    double_thread = threading.Thread(target=double, args=(n))</span><br><span class="line">    double_thread.start()</span><br></pre></td></tr></table></div></figure>
+
+
+        <h2 id="代码实现"   >
+          <a href="#代码实现" class="heading-link"><i class="fas fa-link"></i></a><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2>
+      <figure class="highlight python"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">from</span> selenium <span class="keyword">import</span> webdriver</span><br><span class="line"><span class="keyword">from</span> fake_useragent <span class="keyword">import</span> UserAgent</span><br><span class="line"></span><br><span class="line">biliFoodUrls = [</span><br><span class="line">    <span class="string">&#x27;https://www.bilibili.com/v/food&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https://www.bilibili.com/v/food/make&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https://www.bilibili.com/v/food/rural&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https://www.bilibili.com/v/food/record&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https://www.bilibili.com/v/food/detective&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https://www.bilibili.com/v/food/measurement&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;https://www.bilibili.com/v/popular/rank/food&#x27;</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">grabVideoUrl</span>(<span class="params">url, videoUrls, upUrls, upUids, upInfos, browser</span>):</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> url:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="keyword">if</span> url[<span class="number">0</span>] == <span class="string">&#x27;/&#x27;</span>:</span><br><span class="line">        url = <span class="string">&#x27;https:&#x27;</span>+url</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;bilibili.com/video&#x27;</span> <span class="keyword">in</span> url:</span><br><span class="line">        videoUrls.append(url)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;捕获到视频url:\t<span class="subst">&#123;url&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="keyword">elif</span> <span class="string">&#x27;space.bilibili.com&#x27;</span> <span class="keyword">in</span> url:</span><br><span class="line">        upUrls.append(url)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;捕获到up主url:\t<span class="subst">&#123;url&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getVideosUrl</span>(<span class="params">videoUrls, upUrls, upUids, upInfos, browser</span>):</span></span><br><span class="line">    <span class="keyword">for</span> web <span class="keyword">in</span> biliFoodUrls:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;开始处理页面:\t<span class="subst">&#123;web&#125;</span>&quot;</span>)</span><br><span class="line">        browser.get(web)</span><br><span class="line">        html = browser.page_source</span><br><span class="line">        webBf = BeautifulSoup(html, <span class="string">&#x27;html.parser&#x27;</span>)</span><br><span class="line">        al = webBf.find_all(<span class="string">&quot;a&quot;</span>)</span><br><span class="line">        <span class="keyword">for</span> a <span class="keyword">in</span> al:</span><br><span class="line">            url = a.get(<span class="string">&#x27;href&#x27;</span>)</span><br><span class="line">            args = (url, videoUrls, upUrls, upUids, upInfos, browser)</span><br><span class="line">            video_thread = threading.Thread(target=grabVideoUrl, args=args)</span><br><span class="line">            video_thread.start()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">grabUpsUrl</span>(<span class="params">videoUrl, videoUrls, upUrls, upUids, upInfos, browser</span>):</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;开始处理视频url:\t<span class="subst">&#123;videoUrl&#125;</span>&quot;</span>)</span><br><span class="line">    headers = &#123;</span><br><span class="line">        <span class="string">&#x27;User-Agent&#x27;</span>: UserAgent().random,</span><br><span class="line">        <span class="string">&#x27;Upgrade-Insecure-Requests&#x27;</span>: <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&#x27;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip, deflate, sdch, br&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.8&#x27;</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    html = requests.request(<span class="string">&#x27;GET&#x27;</span>, videoUrl, headers=headers).content</span><br><span class="line">    webBf = BeautifulSoup(html, <span class="string">&quot;html.parser&quot;</span>)</span><br><span class="line">    upDiv = webBf.find(<span class="built_in">id</span>=<span class="string">&#x27;v_upinfo&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> upDiv:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;获取视频up主信息遭到拦截\t<span class="subst">&#123;videoUrl&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    upUrl = upDiv.find_all(<span class="string">&#x27;a&#x27;</span>)[<span class="number">0</span>].get(<span class="string">&#x27;href&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> upUrl[<span class="number">0</span>] == <span class="string">&#x27;/&#x27;</span>:</span><br><span class="line">        upUrl = <span class="string">&#x27;https:&#x27;</span> + upUrl</span><br><span class="line">    upUrls.append(upUrl)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;捕获到up主url:\t<span class="subst">&#123;upUrl&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getUpsUrl</span>(<span class="params">videoUrls, upUrls, upUids, upInfos, browser</span>):</span></span><br><span class="line">    <span class="keyword">for</span> videoUrl <span class="keyword">in</span> videoUrls:</span><br><span class="line">        args = (videoUrl, videoUrls, upUrls, upUids, upInfos, browser)</span><br><span class="line">        upUrl_thread = threading.Thread(target=grabUpsUrl, args=args)</span><br><span class="line">        upUrl_thread.start()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getUpsId</span>(<span class="params">videoUrls, upUrls, upUids, upInfos, browser</span>):</span></span><br><span class="line">    <span class="keyword">for</span> upUrl <span class="keyword">in</span> upUrls:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> upUrl:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        upUid = upUrl.split(<span class="string">&quot;#&quot;</span>)[<span class="number">0</span>].split(<span class="string">&#x27;/&#x27;</span>)[-<span class="number">1</span>]</span><br><span class="line">        upUids.append(upUid)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;捕获到up主id:\t<span class="subst">&#123;upUid&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getUpsInfo</span>(<span class="params">videoUrls, upUrls, upUids, upInfos, browser</span>):</span></span><br><span class="line">    api = <span class="string">&#x27;https://api.bilibili.com/x/web-interface/card?jsonp=jsonp&amp;mid=&#x27;</span></span><br><span class="line">    ids = <span class="built_in">set</span>(upUids)</span><br><span class="line">    upUids = <span class="built_in">list</span>(ids)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> index, upUid <span class="keyword">in</span> <span class="built_in">enumerate</span>(upUids):</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;开始处理mid:<span class="subst">&#123;upUid&#125;</span>\t进度:<span class="subst">&#123;index+<span class="number">1</span>&#125;</span>/<span class="subst">&#123;<span class="built_in">len</span>(upUids)&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        headers = &#123;</span><br><span class="line">            <span class="string">&#x27;User-Agent&#x27;</span>: UserAgent().random,</span><br><span class="line">            <span class="string">&#x27;Upgrade-Insecure-Requests&#x27;</span>: <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&#x27;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip, deflate, sdch, br&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.8&#x27;</span>,</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        res = requests.request(<span class="string">&#x27;GET&#x27;</span>, <span class="string">f&quot;<span class="subst">&#123;api&#125;</span><span class="subst">&#123;upUid&#125;</span>&quot;</span>, headers=headers)</span><br><span class="line">        data = res.json()[<span class="string">&#x27;data&#x27;</span>]</span><br><span class="line">        n = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span>((<span class="keyword">not</span> data) <span class="keyword">and</span> n &lt; <span class="number">100</span>):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;请求遭到服务器拦截  重试第<span class="subst">&#123;n+<span class="number">1</span>&#125;</span>次中...\t总进度:<span class="subst">&#123;index+<span class="number">1</span>&#125;</span>/<span class="subst">&#123;<span class="built_in">len</span>(upUids)&#125;</span>&quot;</span>)</span><br><span class="line">            headers = &#123;</span><br><span class="line">                <span class="string">&#x27;User-Agent&#x27;</span>: UserAgent().random,</span><br><span class="line">                <span class="string">&#x27;Upgrade-Insecure-Requests&#x27;</span>: <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">                <span class="string">&#x27;Accept&#x27;</span>: <span class="string">&#x27;text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8&#x27;</span>,</span><br><span class="line">                <span class="string">&#x27;Accept-Encoding&#x27;</span>: <span class="string">&#x27;gzip, deflate, sdch, br&#x27;</span>,</span><br><span class="line">                <span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.8&#x27;</span>,</span><br><span class="line">            &#125;</span><br><span class="line">            res = requests.request(<span class="string">&#x27;GET&#x27;</span>, <span class="string">f&quot;<span class="subst">&#123;api&#125;</span><span class="subst">&#123;upUid&#125;</span>&quot;</span>, headers=headers)</span><br><span class="line">            n += <span class="number">1</span></span><br><span class="line">            data = res.json()[<span class="string">&#x27;data&#x27;</span>]</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> n == <span class="number">100</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;读取up主信息(mid=<span class="subst">&#123;upUid&#125;</span>)成功&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if not data:</span></span><br><span class="line">        <span class="comment">#     print(f&quot;读取up主信息(mid=&#123;upUid&#125;)的请求遭到服务器拦截&quot;)</span></span><br><span class="line">        <span class="comment">#     continue</span></span><br><span class="line"></span><br><span class="line">        upName = data[<span class="string">&#x27;card&#x27;</span>][<span class="string">&#x27;name&#x27;</span>]</span><br><span class="line">        follower = data[<span class="string">&#x27;follower&#x27;</span>]</span><br><span class="line">        mid = data[<span class="string">&#x27;card&#x27;</span>][<span class="string">&#x27;mid&#x27;</span>]</span><br><span class="line">        upInfos.append(&#123;<span class="string">&#x27;id&#x27;</span>: upName, <span class="string">&#x27;follower&#x27;</span>: follower, <span class="string">&#x27;mid&#x27;</span>: mid&#125;)</span><br><span class="line"></span><br><span class="line">    upInfos = <span class="built_in">sorted</span>(upInfos, key=<span class="keyword">lambda</span> upInfo: upInfo[<span class="string">&#x27;follower&#x27;</span>])</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;写入Excel文件中...&quot;</span>)</span><br><span class="line">    filename = <span class="string">&quot;bili.csv&quot;</span></span><br><span class="line">    bili_csv = codecs.<span class="built_in">open</span>(filename, <span class="string">&#x27;ab&#x27;</span>, <span class="string">&quot;gbk&quot;</span>)</span><br><span class="line">    bili_csv_writer = csv.writer(bili_csv)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> upInfo <span class="keyword">in</span> upInfos:</span><br><span class="line">        msg = <span class="string">f&quot;写入中\tUp主id:<span class="subst">&#123;upInfo[<span class="string">&#x27;id&#x27;</span>]&#125;</span>\t粉丝数:<span class="subst">&#123;upInfo[<span class="string">&#x27;follower&#x27;</span>]&#125;</span>\tmid=<span class="subst">&#123;upInfo[<span class="string">&#x27;mid&#x27;</span>]&#125;</span>&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(msg)</span><br><span class="line"></span><br><span class="line">        info = (upInfo[<span class="string">&#x27;id&#x27;</span>], upInfo[<span class="string">&#x27;follower&#x27;</span>], upInfo[<span class="string">&#x27;mid&#x27;</span>])</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            bili_csv_writer.writerow(info)</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">    bili_csv.close()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;写入到<span class="subst">&#123;filename&#125;</span>完成  本次共爬取到<span class="subst">&#123;<span class="built_in">len</span>(upInfos)&#125;</span>个up主信息&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>(<span class="params">browser</span>):</span></span><br><span class="line">    videoUrls = []</span><br><span class="line">    upUrls = []</span><br><span class="line">    upUids = []</span><br><span class="line">    upInfos = []</span><br><span class="line">    getVideosUrl(videoUrls, upUrls, upUids, upInfos, browser)</span><br><span class="line">    getUpsUrl(videoUrls, upUrls, upUids, upInfos, browser)</span><br><span class="line">    time.sleep(<span class="number">20</span>)</span><br><span class="line">    getUpsId(videoUrls, upUrls, upUids, upInfos, browser)</span><br><span class="line">    getUpsInfo(videoUrls, upUrls, upUids, upInfos, browser)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    browser = webdriver.Chrome()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">100</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;开始第<span class="subst">&#123;i+<span class="number">1</span>&#125;</span>次爬取...&quot;</span>)</span><br><span class="line">        main(browser)</span><br><span class="line">    browser.close()</span><br><span class="line"></span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="参考"   >
+          <a href="#参考" class="heading-link"><i class="fas fa-link"></i></a><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
+      <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/111859925" >Selenium Python 教程 - 知乎</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="https://vikiboss.top">Viki</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="https://vikiboss.top/2020/11/29/python-crawler/">https://vikiboss.top/2020/11/29/python-crawler/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-reward reward"><div class="reward-button">请我喝杯咖啡~</div><div class="reward-qrcode"><span class="reward-qrcode-alipay"><img class="reward-qrcode-alipay__img" src="https://www.multmax.top/images/2020/09/02/alipay.jpg"><div class="reward-qrcode-alipay__text">支付宝打赏</div></span><span class="reward-qrcode-wechat"><img class="reward-qrcode-wechat__img" src="https://www.multmax.top/images/2020/09/02/wechat.png"><div class="reward-qrcode-wechat__text">微信打赏</div></span></div></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2022/02/15/node-cannot-find-fs-promises/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">cannot find module fs/promises</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2020/11/21/js-this/"><span class="paginator-prev__text">浅析JavaScript中this的指向问题</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="gitalk-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9C%80%E6%B1%82"><span class="toc-number">1.</span> <span class="toc-text">
+          需求</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF"><span class="toc-number">2.</span> <span class="toc-text">
+          思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%A8%E5%88%B0%E7%9A%84%E5%BA%93%E5%8F%8A%E5%85%B6%E4%BD%9C%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">
+          用到的库及其作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E4%BB%A5%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">4.</span> <span class="toc-text">
+          遇到的问题以及解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%BF%E4%B8%8D%E5%88%B0-html-%E7%BB%93%E6%9E%84"><span class="toc-number">4.1.</span> <span class="toc-text">
+          拿不到 html 结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%BF%E5%88%B0%E7%9A%84-html-%E7%BB%93%E6%9E%84%E4%B8%8D%E5%AE%8C%E6%95%B4"><span class="toc-number">4.2.</span> <span class="toc-text">
+          拿到的 html 结构不完整</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0%E6%B3%95%E6%B0%B8%E4%B9%85%E4%BF%9D%E5%AD%98%E4%B8%94%E4%B8%8D%E4%BC%9A%E4%B9%B1%E7%A0%81%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-number">4.3.</span> <span class="toc-text">
+          无法永久保存且不会乱码的数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%94%E5%9B%9E%E7%9A%84%E6%95%B0%E6%8D%AE%E6%98%AF-json-%E6%A0%BC%E5%BC%8F"><span class="toc-number">4.4.</span> <span class="toc-text">
+          返回的数据是 json 格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%88%AC%E5%8F%96%E9%80%9F%E5%BA%A6%E5%A4%AA%E6%85%A2"><span class="toc-number">4.5.</span> <span class="toc-text">
+          爬取速度太慢</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text">
+          代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">5.1.</span> <span class="toc-text">
+          参考</span></a></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="http://q.qlogo.cn/headimg_dl?dst_uin=1141284758&amp;spec=640&amp;img_type=jpg" alt="avatar"></div><p class="sidebar-ov-author__text">努力上进且优秀</p></div><div class="sidebar-ov-social"><a class="sidebar-ov-social-item" href="https://github.com/vikiboss" target="_blank" rel="noopener" data-popover="Github" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-github"></i></span></a><a class="sidebar-ov-social-item" href="https://t.me/VikiQAQ" target="_blank" rel="noopener" data-popover="Telegram" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-telegram"></i></span></a><a class="sidebar-ov-social-item" href="/about" target="_blank" rel="noopener" data-popover="QQ" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-qq"></i></span></a></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">27</div><div class="sidebar-ov-state-item__name">归档</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2019~2020</span><span class="footer__icon"><i class="fas fa-code"></i></span><span>Viki</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="220,220,220" opacity="0.8" count="100" zIndex="-2"></script><script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.xml';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ 文章无标题 ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', '请输入字符');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (false) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"></div><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js" data-pjax=""></script><script src="https://cdn.jsdelivr.net/npm/js-md5@latest/src/md5.min.js" data-pjax=""></script><script data-pjax="">function loadGitalk () {
+  if (!document.getElementById('gitalk-container')) {
+    return;
+  }
+
+  var gitalk = new Gitalk({
+    id: md5(window.location.pathname.slice(1)),
+    clientID: '001a68ef5042ee4c963c',
+    clientSecret: 'c0d4f0dfb2aed7f71f84f14617ce062546be298d',
+    repo: 'blog-commits',
+    owner: 'vikiboss',
+    admin: ['vikiboss'],
+    distractionFreeMode: 'true',
+    language: 'zh-CN'
+  });
+  gitalk.render('gitalk-container');
+}
+
+if (true) {
+  loadGitalk();
+} else {
+  window.addEventListener('DOMContentLoaded', loadGitalk, false);
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.xml"></script></body></html>
