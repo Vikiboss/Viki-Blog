@@ -1,0 +1,509 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/assets/favicon.ico?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/assets/favicon.ico?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="CSS 样式隔离与性能优化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CSS 样式隔离与性能优化">
+<meta property="og:url" content="https://vikiboss.top/2022/02/21/css-modules-and-performance/index.html">
+<meta property="og:site_name" content="Viki&#39;s Blog">
+<meta property="og:description" content="CSS 样式隔离与性能优化">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-02-20T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-02-21T07:22:36.307Z">
+<meta property="article:author" content="Viki">
+<meta property="article:tag" content="Blog">
+<meta property="article:tag" content="Viki">
+<meta property="article:tag" content="vikiboss">
+<meta name="twitter:card" content="summary"><title>CSS 样式隔离与性能优化 | Viki's Blog</title><link ref="canonical" href="https://vikiboss.top/2022/02/21/css-modules-and-performance/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" type="text/css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><link rel="dns-prefetch" href="https://www.googletagmanager.com"><script src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js" data-ad-client="ca-pub-1861620172391138" async="" data-pjax=""></script><script src="https://www.googletagmanager.com/gtag/js?id=UA-177056870-1" async="" data-pjax=""></script><script data-pjax="">if (window.location.hostname !== 'localhost') {
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', 'UA-177056870-1');
+}</script><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":true},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"carbon","highlight":"light","wordWrap":false},
+  reward: true,
+  fancybox: true,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: {"colWidth":"220px","gapX":"10px"},
+  lazyload: true,
+  pjax: {"avoidBanner":false},
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.4.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/about"><span class="header-nav-menu-item__text">关于</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner" style="background: url(https://s2.loli.net/2022/02/21/N6ljREPqY9n4wes.png) no-repeat center/cover;"><div class="header-banner-info"><div class="header-banner-info__title">Viki's Blog</div><div class="header-banner-info__subtitle">努力上进且优秀</div></div><div class="header-banner-arrow"><div class="header-banner-arrow__icon"><i class="fas fa-angle-down"></i></div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">CSS 样式隔离与性能优化</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon" data-popover="发表时间" data-popover-pos="up"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__value">2022-02-21</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon" data-popover="修改时间" data-popover-pos="up"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__value">2022-02-21</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon" data-popover="字数统计" data-popover-pos="up"><i class="far fa-file-word"></i></span><span class="post-meta-item__value">1.6k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon" data-popover="阅读时间" data-popover-pos="up"><i class="far fa-clock"></i></span><span class="post-meta-item__value">10分</span></span></div></header><div class="post-body">
+        <h2 id="CSS-样式隔离"   >
+          <a href="#CSS-样式隔离" class="heading-link"><i class="fas fa-link"></i></a><a href="#CSS-样式隔离" class="headerlink" title="CSS 样式隔离"></a>CSS 样式隔离</h2>
+      <p>CSS 简要发展历程：</p>
+<ul>
+<li>手写原生 <code>CSS</code> 规则（ <a target="_blank" rel="noopener" href="http://getbem.com/introduction/"><code>BEM</code> 命名法</a>）</li>
+<li>预处理器：<a target="_blank" rel="noopener" href="https://sass-lang.com/"><code>Sass</code></a>、<a target="_blank" rel="noopener" href="https://lesscss.org/"><code>Less</code></a> 和 <a target="_blank" rel="noopener" href="https://stylus-lang.com/"><code>Stylus</code></a> 等</li>
+<li>后处理器：<a target="_blank" rel="noopener" href="https://postcss.org/"><code>PostCSS</code></a>，插件式，代表：<a target="_blank" rel="noopener" href="https://github.com/postcss/autoprefixer"><code>autoprefix</code></a></li>
+<li><code>CSS Modules</code>，需要搭配 <a target="_blank" rel="noopener" href="https://webpack.js.org/"><code>webpack</code></a>、<a target="_blank" rel="noopener" href="https://gulpjs.com/"><code>Gulp</code></a> 或 <a target="_blank" rel="noopener" href="https://parceljs.org/"><code>Parcel</code></a> 等构建工具</li>
+<li><code>CSS in JS</code>，代表：基于 <code>React</code> 框架的 <a target="_blank" rel="noopener" href="https://github.com/styled-components/styled-components"><code>styled-component</code></a></li>
+</ul>
+<p>原生的 CSS 规则是全局生效的。为了避免样式冲突，出现了很多种解决方案。</p>
+
+        <h3 id="BEM-命名法"   >
+          <a href="#BEM-命名法" class="heading-link"><i class="fas fa-link"></i></a><a href="#BEM-命名法" class="headerlink" title="BEM 命名法"></a>BEM 命名法</h3>
+      <p>为了从开发层面上避免命名冲突问题，同时让类名更有意义，获得更多的描述和更加清晰的结构，从其名字可以知道某个标记的含义，让 CSS 更具可读性，出现了 <code>BEM</code> （即：<code>Block</code>、<code>Element</code>、<code>Modifier</code>，由 Yandex 团队提出）前端 <code>CSS</code> 命名规范：</p>
+<ul>
+<li><code>-</code> 中划线：仅作连字符使用，表示某个块、子元素的<strong>多单词</strong>之间的连接记号</li>
+<li><code>__</code> 双下划线：双下划线用来连接块和块的子元素</li>
+<li><code>--</code> 双中划线：双中划线用来描述、修饰元素的状态、种类等</li>
+</ul>
+<figure class="highlight css"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Block 可以理解为开发的单个组件、模块（Component） */</span></span><br><span class="line"><span class="selector-class">.article-detail</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: flex;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Element 是 Block 的组成部分 */</span></span><br><span class="line"><span class="selector-class">.article-detail__button</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">120px</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">36px</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Modifier 用来描述、修饰元素的状态、种类等 */</span></span><br><span class="line"><span class="selector-class">.article-detail__button--primary</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#fff</span>;</span><br><span class="line">  <span class="attribute">background-color</span>: <span class="number">#3af</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+<p>但缺点也很明显，<code>BEM</code> 命名方式手写很繁琐，开发效率低，难以维护。</p>
+
+        <h3 id="CSS-Modules"   >
+          <a href="#CSS-Modules" class="heading-link"><i class="fas fa-link"></i></a><a href="#CSS-Modules" class="headerlink" title="CSS Modules"></a>CSS Modules</h3>
+      <p><code>CSS Modules</code> 实质上还是 <code>CSS</code> 文件，它不能单独使用，需要搭配打包构建工具使用。它赋予了原生 <code>CSS</code> 许多新的<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/css-modules/css-modules" >特性</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span>：</p>
+<ul>
+<li>支持显式的编写<strong>局部</strong>与<strong>全局</strong> <code>CSS</code> 规则</li>
+<li>允许以<strong>模块</strong>的方式被加载和使用到 <code>JS</code> 文件当中</li>
+<li>打包时会将类名转换成<strong>哈希值</strong>，杜绝 <code>CSS</code> 类名冲突</li>
+</ul>
+<figure class="highlight css"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* style.css */</span></span><br><span class="line"><span class="selector-class">.className</span> &#123;</span><br><span class="line">  <span class="attribute">color</span>: green;</span><br><span class="line">  <span class="attribute">background</span>: red;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.otherClassName</span> &#123;</span><br><span class="line">  <span class="comment">/* 支持样式组合（composes） */</span></span><br><span class="line">  composes: className;</span><br><span class="line">  <span class="attribute">color</span>: yellow;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.otherClassName</span> &#123;</span><br><span class="line">  <span class="comment">/* 支持从其他文件导入 */</span></span><br><span class="line">  composes: className from <span class="string">&quot;./style.css&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 以上样式，默认是局部作用域 */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 局部作用域 */</span></span><br><span class="line">:<span class="built_in">local</span>(p) &#123;</span><br><span class="line">  color: <span class="number">#333</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* 全局作用域 */</span></span><br><span class="line">:<span class="built_in">global</span>(p) &#123;</span><br><span class="line">  color: <span class="number">#333</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> styles <span class="keyword">from</span> <span class="string">&quot;./style.css&quot;</span>;</span><br><span class="line"><span class="comment">// import &#123; className &#125; from &quot;./style.css&quot;;</span></span><br><span class="line">element.innerHTML = <span class="string">&#x27;&lt;div class=&quot;&#x27;</span> + styles.className + <span class="string">&#x27;&quot;&gt;&#x27;</span>;</span><br><span class="line"><span class="comment">// element.innerHTML = &#x27;&lt;div class=&quot;&#x27; + styles[&#x27;class-name&#x27;] + &#x27;&quot;&gt;&#x27;;</span></span><br></pre></td></tr></table></div></figure>
+
+<p>搭配 <code>webpack</code> 使用，配置如下：</p>
+<figure class="highlight js"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// webpack.config.js</span></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  <span class="attr">module</span>: &#123;</span><br><span class="line">    <span class="attr">rules</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">test</span>: <span class="regexp">/\.css$/</span>,</span><br><span class="line">        use: &#123;</span><br><span class="line">          <span class="attr">loader</span>: <span class="string">&quot;css-loader&quot;</span>,</span><br><span class="line">          <span class="attr">options</span>: &#123;</span><br><span class="line">            <span class="attr">modules</span>: &#123;</span><br><span class="line">              <span class="comment">// 自定义 hash 名称，可用变量</span></span><br><span class="line">              <span class="attr">localIdentName</span>: <span class="string">&quot;[path][name]__[local]--[hash:base64:5]&quot;</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;,</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    ],</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></div></figure>
+
+<p>打包后的效果（类名被转换为自定义的哈希名称格式）：</p>
+<figure class="highlight css"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">._2DHwuiHWMnKTOYG45T0x34 &#123;</span><br><span class="line">  <span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">._10B-buq6_BEOTOl9urIjf8 &#123;</span><br><span class="line">  <span class="attribute">background-color</span>: blue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="Sass、Less-和-Stylus"   >
+          <a href="#Sass、Less-和-Stylus" class="heading-link"><i class="fas fa-link"></i></a><a href="#Sass、Less-和-Stylus" class="headerlink" title="Sass、Less 和 Stylus"></a>Sass、Less 和 Stylus</h3>
+      <p>为了方便前端开发人员编写 CSS，出现了很多<strong>预处理器</strong>：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://sass-lang.com/"><code>Sass</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://lesscss.org/"><code>Less</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://stylus-lang.com/"><code>Stylus</code></a></li>
+</ul>
+<p>总的来说，他们除了部分语法和特性的差异之外，大都具有以下特征：</p>
+<ul>
+<li>默认局部作用域</li>
+<li>支持嵌套规则</li>
+<li>支持样式组合、继承</li>
+<li>支持同一预处理器的外部样式文件引入（<code>@import</code>）</li>
+<li>允许使用变量、函数（颜色函数等）</li>
+<li>打包编译会将类名做哈希处理，不存在冲突问题</li>
+</ul>
+<p>除了这些，不同的预处理器还具有<strong>条件语句</strong>、<strong>循环语句</strong>等不同的特性，详情参考对应预处理器文档。</p>
+<p>这里需要注意一点，如果 <code>@import</code> 引入的是原生的 CSS 格式文件，那就会额外产生 <code>http</code> 请求。</p>
+<p>而预处理器中的 <code>@import</code> 只要是引入对应预处理器的文件，是在语法语义层面引入，而不是引入原生 <code>CSS</code>，那就会在打包编译时被处理，最后只生成一个 <code>CSS</code> 文件，<strong>不会</strong>增加 <code>http</code> 请求。</p>
+<figure class="highlight css"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 引入原生 CSS，会增加 http 请求 */</span></span><br><span class="line"><span class="keyword">@import</span> <span class="string">&quot;reset.css&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 预处理器格式，less 为对应预处理器的文件拓展名，如 scss，styl */</span></span><br><span class="line"><span class="comment">/* body.less */</span></span><br><span class="line"><span class="selector-tag">body</span> &#123;</span><br><span class="line">  <span class="attribute">background</span>: <span class="number">#eee</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* style.less */</span></span><br><span class="line"><span class="keyword">@import</span> <span class="string">&quot;body.less&quot;</span>;</span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="PostCSS"   >
+          <a href="#PostCSS" class="heading-link"><i class="fas fa-link"></i></a><a href="#PostCSS" class="headerlink" title="PostCSS"></a>PostCSS</h3>
+      <p>随着前端工程化的不断发展，越来越多的工具被开发出来，希望把所有重复性的工作都交给构建工具去完成，在 <code>CSS</code> 领域，<code>PostCSS</code> 兴起了。</p>
+<p>关于 <code>PostCSS</code>，有一句话我觉得说的非常在理：</p>
+<blockquote>
+<p><code>PostCSS</code> 可以被称为 <code>CSS</code> 界的 <code>Babel</code>。</p>
+</blockquote>
+<p><code>PostCSS</code> 通过分析 <code>CSS</code> 的语法树（<code>AST</code>），并对分析结果进行处理来完成一系列在前端开发者看来十分繁琐复杂的工作。常见的使用场景有：</p>
+<ul>
+<li>搭配语言语法校验工具实现语法错误检测，如 <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://stylelint.io/" >stylelint</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+<li>将 CSS 下一代版本的语法规则做<strong>转译</strong>（<code>Transpilers</code>）和<strong>兼容</strong>（<code>polyfill</code>）处理</li>
+<li>搭配插件实现特定功能，比如使用 <a target="_blank" rel="noopener" href="https://github.com/postcss/autoprefixer"><code>autoprefix</code></a> 实现自动添加浏览器前缀的功能</li>
+</ul>
+
+        <h2 id="CSS-性能优化"   >
+          <a href="#CSS-性能优化" class="heading-link"><i class="fas fa-link"></i></a><a href="#CSS-性能优化" class="headerlink" title="CSS 性能优化"></a>CSS 性能优化</h2>
+      <p>常见的 <code>CSS</code> 性能优化的方式：</p>
+<ul>
+<li><strong>减少文件拆分</strong>，请求多个 <code>CSS</code> 文件时会受到网络因素的制约</li>
+<li>减少 <code>CSS</code> 嵌套，建议不超过三层</li>
+<li>删除不必要的 <code>CSS</code> 选择器，合理选用 <code>CSS</code> 选择器，比如：<strong>id 选择器</strong>前无需再添加其他选择器</li>
+<li>多复用同类元素的样式，如 <code>button</code>、<code>input</code> 元素等</li>
+<li>减少<strong>通配选择器</strong>（<code>*</code>）与<strong>属性选择器</strong>（<code>[name=nav]</code>）的使用，这类选择器通常需要遍历所有元素</li>
+<li>删除<strong>无效、重复</strong>的样式，比如：部分属性拥有继承的特点，如果父元素定义了，子元素就无需再次设置</li>
+<li>分离页面间公共的 <code>CSS</code> 规则成单独的 <code>CSS</code> 文件，比如 <code>normalize.css</code>，浏览器只需加载一次（下次使用缓存）</li>
+<li>多使用 <code>CSS Sprite</code>（或者叫做<strong>精灵图</strong>、<strong>雪碧图</strong>），减少图片、图标的请求次数</li>
+<li>使用 <code>CSS</code> 压缩工具或者项目的编译打包工具对 <code>CSS</code> 进行压缩优化处理</li>
+<li>减少 <code>@import</code> 的使用，会产生额外的请求且会影响加载的顺序（<code>CSS</code> 预处理语言除外）</li>
+<li>减少<strong>大幅频繁</strong>的<strong>布局重排</strong>（窗口、元素、文字的大小改变、布局切换、尺寸计算等），减少渲染消耗</li>
+<li>避免使用 <code>JS</code> 改变单条 <code>CSS</code> 样式，如是必要，可以先定义 <code>CSS</code> 类，然后通过改变类名来改变样式</li>
+<li>减少使用<strong>复杂、性能要求高</strong>的 <code>CSS</code> 动画</li>
+</ul>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="https://vikiboss.top">Viki</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="https://vikiboss.top/2022/02/21/css-modules-and-performance/">https://vikiboss.top/2022/02/21/css-modules-and-performance/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-reward reward"><div class="reward-button">请我喝杯咖啡~</div><div class="reward-qrcode"><span class="reward-qrcode-alipay"><img class="reward-qrcode-alipay__img" src="https://www.multmax.top/images/2020/09/02/alipay.jpg"><div class="reward-qrcode-alipay__text">支付宝打赏</div></span><span class="reward-qrcode-wechat"><img class="reward-qrcode-wechat__img" src="https://www.multmax.top/images/2020/09/02/wechat.png"><div class="reward-qrcode-wechat__text">微信打赏</div></span></div></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2022/02/16/css-selector/"><span class="paginator-prev__text">CSS 选择器</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div><div class="comments" id="comments"><div id="gitalk-container"></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">文章目录</span><span class="sidebar-nav-ov">站点概览</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#CSS-%E6%A0%B7%E5%BC%8F%E9%9A%94%E7%A6%BB"><span class="toc-number">1.</span> <span class="toc-text">
+          CSS 样式隔离</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#BEM-%E5%91%BD%E5%90%8D%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">
+          BEM 命名法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CSS-Modules"><span class="toc-number">1.2.</span> <span class="toc-text">
+          CSS Modules</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sass%E3%80%81Less-%E5%92%8C-Stylus"><span class="toc-number">1.3.</span> <span class="toc-text">
+          Sass、Less 和 Stylus</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PostCSS"><span class="toc-number">1.4.</span> <span class="toc-text">
+          PostCSS</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CSS-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">
+          CSS 性能优化</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="http://q.qlogo.cn/headimg_dl?dst_uin=1141284758&amp;spec=640&amp;img_type=jpg" alt="avatar"></div><p class="sidebar-ov-author__text">努力上进且优秀</p></div><div class="sidebar-ov-social"><a class="sidebar-ov-social-item" href="https://github.com/vikiboss" target="_blank" rel="noopener" data-popover="Github" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-github"></i></span></a><a class="sidebar-ov-social-item" href="https://t.me/VikiQAQ" target="_blank" rel="noopener" data-popover="Telegram" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-telegram"></i></span></a><a class="sidebar-ov-social-item" href="/about" target="_blank" rel="noopener" data-popover="QQ" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-qq"></i></span></a></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">30</div><div class="sidebar-ov-state-item__name">归档</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2019~2020</span><span class="footer__icon"><i class="fas fa-code"></i></span><span>Viki</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1.0.1/dist/canvas-nest.min.js" color="220,220,220" opacity="0.8" count="100" zIndex="-2"></script><script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/lazyload@2.0.0-rc.2/lazyload.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.xml';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ 文章无标题 ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', '请输入字符');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/npm/pjax@latest/pjax.min.js"></script><script>window.addEventListener('DOMContentLoaded', function () {
+  var pjax = new Pjax({"selectors":["head title","#main",".pjax-reload"],"history":true,"scrollTo":false,"scrollRestoration":false,"cacheBust":false,"debug":false,"currentUrlFullReload":false,"timeout":0});
+  // 加载进度条的计时器
+  var loadingTimer = null;
+
+  // 重置页面 Y 方向上的滚动偏移量
+  document.addEventListener('pjax:send', function () {
+    $('.header-nav-menu').removeClass('show');
+    if (CONFIG.pjax && CONFIG.pjax.avoidBanner) {
+      $('html').velocity('scroll', {
+        duration: 500,
+        offset: $('#header').height(),
+        easing: 'easeInOutCubic'
+      });
+    }
+
+    var loadingBarWidth = 20;
+    var MAX_LOADING_WIDTH = 95;
+
+    $('.loading-bar').addClass('loading');
+    $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    clearInterval(loadingTimer);
+    loadingTimer = setInterval(function () {
+      loadingBarWidth += 3;
+      if (loadingBarWidth > MAX_LOADING_WIDTH) {
+        loadingBarWidth = MAX_LOADING_WIDTH;
+      }
+      $('.loading-bar__progress').css('width', loadingBarWidth + '%');
+    }, 500);
+  }, false);
+
+  window.addEventListener('pjax:complete', function () {
+    clearInterval(loadingTimer);
+    $('.loading-bar__progress').css('width', '100%');
+    $('.loading-bar').removeClass('loading');
+    setTimeout(function () {
+      $('.loading-bar__progress').css('width', '0');
+    }, 400);
+    $('link[rel=prefetch], script[data-pjax-rm]').each(function () {
+      $(this).remove();
+    });
+    $('script[data-pjax], #pjax-reload script').each(function () {
+      $(this).parent().append($(this).remove());
+    });
+
+    if (Stun.utils.pjaxReloadBoot) {
+      Stun.utils.pjaxReloadBoot();
+    }
+    if (Stun.utils.pjaxReloadScroll) {
+      Stun.utils.pjaxReloadScroll();
+    }
+    if (Stun.utils.pjaxReloadSidebar) {
+      Stun.utils.pjaxReloadSidebar();
+    }
+    if (false) {
+      if (Stun.utils.pjaxReloadHeader) {
+        Stun.utils.pjaxReloadHeader();
+      }
+      if (Stun.utils.pjaxReloadScrollIcon) {
+        Stun.utils.pjaxReloadScrollIcon();
+      }
+      if (Stun.utils.pjaxReloadLocalSearch) {
+        Stun.utils.pjaxReloadLocalSearch();
+      }
+    }
+  }, false);
+}, false);</script><div id="pjax-reload"></div><script src="https://cdn.jsdelivr.net/npm/gitalk@latest/dist/gitalk.min.js" data-pjax=""></script><script src="https://cdn.jsdelivr.net/npm/js-md5@latest/src/md5.min.js" data-pjax=""></script><script data-pjax="">function loadGitalk () {
+  if (!document.getElementById('gitalk-container')) {
+    return;
+  }
+
+  var gitalk = new Gitalk({
+    id: md5(window.location.pathname.slice(1)),
+    clientID: '001a68ef5042ee4c963c',
+    clientSecret: 'c0d4f0dfb2aed7f71f84f14617ce062546be298d',
+    repo: 'blog-commits',
+    owner: 'vikiboss',
+    admin: ['vikiboss'],
+    distractionFreeMode: 'true',
+    language: 'zh-CN'
+  });
+  gitalk.render('gitalk-container');
+}
+
+if (true) {
+  loadGitalk();
+} else {
+  window.addEventListener('DOMContentLoaded', loadGitalk, false);
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.xml"></script></body></html>
