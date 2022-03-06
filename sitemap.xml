@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://vikiboss.top/2022/03/06/js-copy/</loc>
+    
+    <lastmod>2022-03-06</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://vikiboss.top/2022/02/22/css-shorthand-property/</loc>
     
     <lastmod>2022-02-22</lastmod>
@@ -235,7 +242,7 @@
 
   <url>
     <loc>https://vikiboss.top/</loc>
-    <lastmod>2022-02-22</lastmod>
+    <lastmod>2022-03-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
