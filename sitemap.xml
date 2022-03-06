@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://vikiboss.top/about/index.html</loc>
+    
+    <lastmod>2022-03-06</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://vikiboss.top/2022/03/06/js-copy/</loc>
     
     <lastmod>2022-03-06</lastmod>
@@ -47,13 +54,6 @@
     <loc>https://vikiboss.top/2020/10/30/dom&ajax/</loc>
     
     <lastmod>2022-02-16</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://vikiboss.top/about/index.html</loc>
-    
-    <lastmod>2021-08-30</lastmod>
     
   </url>
   
